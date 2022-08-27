@@ -15,7 +15,6 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'forge'
-apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
@@ -84,16 +83,5 @@ processResources {
         include 'mcmod.info'
         expand 'version': project.version, 'mcversion': project.minecraft.version
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId project.group
-            artifactId project.name
-            version project.version
-            from components.java
-        }
     }
 }
