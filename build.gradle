@@ -62,7 +62,9 @@ minecraft {
 }
 
 dependencies {
-    runtimeOnly "codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev"
+    // Just for autosearch test of mappings directory
+    testRuntimeOnly "codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev"
+    testRuntimeOnly "codechicken:CodeChickenCore:1.7.10-1.0.7.47:dev"
 
     compileOnly "org.jetbrains:annotations:${buildprop.jetbrains_annotations_version}"
     testCompileOnly "org.jetbrains:annotations:${buildprop.jetbrains_annotations_version}"
@@ -90,6 +92,7 @@ processResources {
 publishing {
     publications {
 		mavenJava(MavenPublication) {
+            artifact jar
 			artifact devJar
         }
     }

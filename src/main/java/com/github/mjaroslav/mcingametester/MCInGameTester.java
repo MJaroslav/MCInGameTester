@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.*;
 
 @Mod(modid = MOD_ID, name = NAME, version = VERSION, dependencies = DEPENDENCIES)
-public class MCInGameTester {
+public final class MCInGameTester {
     @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
     public static CommonProxy proxy;
 

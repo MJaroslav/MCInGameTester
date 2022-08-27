@@ -5,7 +5,7 @@ import net.minecraft.server.MinecraftServer;
 
 public class ServerProxy extends CommonProxy {
     @Override
-    public void stopGame() {
+    public void softGameStop() {
         MinecraftServer.getServer().initiateShutdown();
     }
 }

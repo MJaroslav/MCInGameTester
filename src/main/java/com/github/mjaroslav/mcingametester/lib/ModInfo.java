@@ -1,6 +1,6 @@
 package com.github.mjaroslav.mcingametester.lib;
 
-public class ModInfo {
+public final class ModInfo {
     public static final String MOD_ID = "mcingametester";
     public static final String NAME = "MCInGameTester";
     public static final String VERSION = "@VERSION@";

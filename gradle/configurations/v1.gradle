@@ -1,10 +1,9 @@
 repositories { maven { url 'https://jitpack.io' } }
 
-task testJar(type: Jar, description: "Make jar from test source set for test runtime",
+task testJar(type: Jar, description: "Make temp jar from test source set",
         group: "MCInGameTester") {
     from sourceSets.test.output
-    // Tests not needed in build/libs
-    destinationDir new File(project.buildDir, "tmp/testJar")
+    destinationDir getTemporaryDir()
 }
 
 task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
@@ -13,25 +12,22 @@ task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
     from plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
     include '**/*.srg'
     include "**/*.csv"
-    into new File(project.buildDir, "unpacked/conf")
+    into new File(tasks.testJar.getTemporaryDir(), "../conf")
 }
 
 // Just wrapper for runClient task with using test source set
 task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
         group: "MCInGameTester", description: "Runs the Minecraft Client, runs game tests then stop it") {
     doFirst {
-        File f = new File(project.buildDir, "test/testClient")
-        if (!f.exists()) f.mkdirs() else { f.deleteDir(); f.mkdirs() } // Always clear client
+        var f = getTemporaryDir(); f.deleteDir(); f.mkdirs() // Always clear server
     }
     // Outputs removed for avoiding mod duplications
     // Uses jars for manifests
     classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
-    //classpath tasks.runClient.classpath + files(tasks.testJar)// + project.configurations.testRuntimeOnly
     main tasks.runClient.main
     args tasks.runClient.args
     jvmArgs tasks.runClient.jvmArgs
-    // No conflicts with run/debug tasks
-    workingDir new File(project.buildDir, "test/testClient")
+    workingDir getTemporaryDir()
     standardOutput tasks.runClient.standardOutput
     errorOutput tasks.runClient.errorOutput
 }
@@ -40,9 +36,8 @@ task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
 task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
         group: "MCInGameTester", description: "Runs the Minecraft Server, runs game tests then stop it") {
     doFirst {
-        File f = new File(project.buildDir, "test/testServer")
-        if (!f.exists()) f.mkdirs() else { f.deleteDir(); f.mkdirs() } // Always clear server
-        new File(project.buildDir, "test/testServer/eula.txt").setText("eula=true") // auto eula
+        var f = getTemporaryDir(); f.deleteDir(); f.mkdirs() // Always clear server
+        new File(getTemporaryDir(), "eula.txt").setText("eula=true") // auto eula
     }
     // Outputs removed for avoiding mod duplications
     // Uses jars for manifests
@@ -50,12 +45,11 @@ task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
     main tasks.runServer.main
     args tasks.runServer.args
     jvmArgs tasks.runServer.jvmArgs
-    // No conflicts with run/debug tasks
-    workingDir new File(project.buildDir, "test/testServer")
+    workingDir getTemporaryDir()
     standardOutput tasks.runServer.standardOutput
     errorOutput tasks.runServer.errorOutput
 }
 
 dependencies {
-    testImplementation "com.github.MJaroslav:MCInGameTester:master-SNAPSHOT:dev"
+    testImplementation "com.github.MJaroslav:MCInGameTester:master-SNAPSHOT:dev" // dev for deobf version
 }
