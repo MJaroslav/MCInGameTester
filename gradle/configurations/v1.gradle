@@ -57,5 +57,5 @@ task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
 }
 
 dependencies {
-    testImplementation "com.github.mjaroslav:MCInGameTest:master-SNAPSHOT:dev"
+    testImplementation "com.github.MJaroslav:MCInGameTester:master-SNAPSHOT:dev"
 }
