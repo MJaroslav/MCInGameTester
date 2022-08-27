@@ -90,7 +90,6 @@ processResources {
 publishing {
     publications {
 		mavenJava(MavenPublication) {
-			artifact build
 			artifact devJar
         }
     }
