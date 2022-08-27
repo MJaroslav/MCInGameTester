@@ -3,7 +3,7 @@ package com.github.mjaroslav.mcingametester.common;
 import cpw.mods.fml.common.event.*;
 import org.jetbrains.annotations.NotNull;
 
-public class CommonProxy {
+public abstract class CommonProxy {
     public void onFMLConstructionEvent(@NotNull FMLConstructionEvent event) {}
 
     public void onFMLPreInitializationEvent(@NotNull FMLPreInitializationEvent event) {}
@@ -23,4 +23,6 @@ public class CommonProxy {
     public void onFMLServerStoppingEvent(@NotNull FMLServerStoppingEvent event) {}
 
     public void onFMLLoadCompleteEvent(@NotNull FMLLoadCompleteEvent event) {}
+
+    public abstract void stopGame();
 }

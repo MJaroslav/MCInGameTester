@@ -1,9 +1,10 @@
 repositories { maven { url 'https://jitpack.io' } }
 
-task testJar(type: Jar, description: "Make jar from test source set for test runtime") {
+task testJar(type: Jar, description: "Make jar from test source set for test runtime",
+        group: "MCInGameTester") {
     from sourceSets.test.output
     // Tests not needed in build/libs
-    destinationDir plugins.getPlugin('forge').delayedFile('{BUILD_DIR}/tmp/testJar').call()
+    destinationDir new File(project.buildDir, "tmp/testJar")
 }
 
 task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
@@ -12,16 +13,15 @@ task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
     from plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
     include '**/*.srg'
     include "**/*.csv"
-    into plugins.getPlugin('forge').delayedFile('{BUILD_DIR}/unpacked/conf').call()
+    into new File(project.buildDir, "unpacked/conf")
 }
 
 // Just wrapper for runClient task with using test source set
 task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
         group: "MCInGameTester", description: "Runs the Minecraft Client, runs game tests then stop it") {
     doFirst {
-        File f = plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
-        if (!f.exists())
-            f.mkdirs()
+        File f = new File(project.buildDir, "test/testClient")
+        if (!f.exists()) f.mkdirs() else { f.deleteDir(); f.mkdirs() } // Always clear client
     }
     // Outputs removed for avoiding mod duplications
     // Uses jars for manifests
@@ -30,19 +30,19 @@ task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
     main tasks.runClient.main
     args tasks.runClient.args
     jvmArgs tasks.runClient.jvmArgs
-    // I don't know why inheriting from runClient don't work
-    workingDir plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+    // No conflicts with run/debug tasks
+    workingDir new File(project.buildDir, "test/testClient")
     standardOutput tasks.runClient.standardOutput
     errorOutput tasks.runClient.errorOutput
 }
 
-// Just wrapper for runClient task with using test source set
+// Just wrapper for runServer task with using test source set
 task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
         group: "MCInGameTester", description: "Runs the Minecraft Server, runs game tests then stop it") {
     doFirst {
-        File f = plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
-        if (!f.exists())
-            f.mkdirs()
+        File f = new File(project.buildDir, "test/testServer")
+        if (!f.exists()) f.mkdirs() else { f.deleteDir(); f.mkdirs() } // Always clear server
+        new File(project.buildDir, "test/testServer/eula.txt").setText("eula=true") // auto eula
     }
     // Outputs removed for avoiding mod duplications
     // Uses jars for manifests
@@ -50,8 +50,8 @@ task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
     main tasks.runServer.main
     args tasks.runServer.args
     jvmArgs tasks.runServer.jvmArgs
-    // I don't know why inheriting from runServer don't work
-    workingDir plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+    // No conflicts with run/debug tasks
+    workingDir new File(project.buildDir, "test/testServer")
     standardOutput tasks.runServer.standardOutput
     errorOutput tasks.runServer.errorOutput
 }
