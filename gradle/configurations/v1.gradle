@@ -1,0 +1,61 @@
+repositories { maven { url 'https://jitpack.io' } }
+
+task testJar(type: Jar, description: "Make jar from test source set for test runtime") {
+    from sourceSets.test.output
+    // Tests not needed in build/libs
+    destinationDir plugins.getPlugin('forge').delayedFile('{BUILD_DIR}/tmp/testJar').call()
+}
+
+task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
+        description: "Just copies mappings to build dir, it needed if you use CodeChickenLib (from GregTech maven)",
+        group: "MCInGameTester") {
+    from plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
+    include '**/*.srg'
+    include "**/*.csv"
+    into plugins.getPlugin('forge').delayedFile('{BUILD_DIR}/unpacked/conf').call()
+}
+
+// Just wrapper for runClient task with using test source set
+task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
+        group: "MCInGameTester", description: "Runs the Minecraft Client, runs game tests then stop it") {
+    doFirst {
+        File f = plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+        if (!f.exists())
+            f.mkdirs()
+    }
+    // Outputs removed for avoiding mod duplications
+    // Uses jars for manifests
+    classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
+    //classpath tasks.runClient.classpath + files(tasks.testJar)// + project.configurations.testRuntimeOnly
+    main tasks.runClient.main
+    args tasks.runClient.args
+    jvmArgs tasks.runClient.jvmArgs
+    // I don't know why inheriting from runClient don't work
+    workingDir plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+    standardOutput tasks.runClient.standardOutput
+    errorOutput tasks.runClient.errorOutput
+}
+
+// Just wrapper for runClient task with using test source set
+task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
+        group: "MCInGameTester", description: "Runs the Minecraft Server, runs game tests then stop it") {
+    doFirst {
+        File f = plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+        if (!f.exists())
+            f.mkdirs()
+    }
+    // Outputs removed for avoiding mod duplications
+    // Uses jars for manifests
+    classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
+    main tasks.runServer.main
+    args tasks.runServer.args
+    jvmArgs tasks.runServer.jvmArgs
+    // I don't know why inheriting from runServer don't work
+    workingDir plugins.getPlugin('forge').delayedFile('{RUN_DIR}').call()
+    standardOutput tasks.runServer.standardOutput
+    errorOutput tasks.runServer.errorOutput
+}
+
+dependencies {
+    testImplementation "com.github.mjaroslav:MCInGameTest:master-SNAPSHOT:dev"
+}

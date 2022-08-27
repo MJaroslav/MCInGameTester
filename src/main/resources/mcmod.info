@@ -1,0 +1,12 @@
+[
+  {
+    "modid": "mcingametester",
+    "name": "MCInGameTester",
+    "description": "Engine for tests, that requires loaded minecraft.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/MJaroslav/MCInGameTester",
+    "authorList": ["MJaroslav"],
+    "logoFile": "assets/mcingametester/logo.png"
+  }
+]
