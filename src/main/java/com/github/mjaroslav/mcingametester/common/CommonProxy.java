@@ -1,53 +1,27 @@
 package com.github.mjaroslav.mcingametester.common;
 
-import com.github.mjaroslav.mcingametester.loader.TestLoader;
-import cpw.mods.fml.common.event.*;
+import com.github.mjaroslav.mcingametester.loader.TestContainer;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class CommonProxy {
-    protected TestLoader loader;
+import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
 
-    public void onFMLConstructionEvent(@NotNull FMLConstructionEvent event) {
-        loader = new TestLoader();
-        loader.parseASMTable(event.getASMHarvestedData());
-        loader.onFMLStateEvent(event);
+public class CommonProxy {
+    protected TestContainer current;
+    protected int tested;
+
+    public void startLogTest(@NotNull TestContainer container) {
+        current = container;
+        tested = 1;
+        LOG.info("Testing of " + current.getTestClassName() + " that contains " + current.getTestCount() + " tests...");
     }
 
-    public void onFMLPreInitializationEvent(@NotNull FMLPreInitializationEvent event) {
-        loader.onFMLStateEvent(event);
+    public void stepLogTest(@NotNull String testName) {
+        LOG.info("Run test " + testName + " (" + tested++ + "/" + current.getTestCount() + ")...");
     }
 
-    public void onFMLInitializationEvent(@NotNull FMLInitializationEvent event) {
-        loader.onFMLStateEvent(event);
+    public void endLogTest() {
+        LOG.info("Testing of " + current.getTestClassName() + " ended successful!");
+        current = null;
+        tested = 0;
     }
-
-    public void onFMLPostInitializationEvent(@NotNull FMLPostInitializationEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLServerAboutToStartEvent(@NotNull FMLServerAboutToStartEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLServerStartedEvent(@NotNull FMLServerStartedEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLServerStartingEvent(@NotNull FMLServerStartingEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLServerStoppedEvent(@NotNull FMLServerStoppedEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLServerStoppingEvent(@NotNull FMLServerStoppingEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public void onFMLLoadCompleteEvent(@NotNull FMLLoadCompleteEvent event) {
-        loader.onFMLStateEvent(event);
-    }
-
-    public abstract void softGameStop();
 }

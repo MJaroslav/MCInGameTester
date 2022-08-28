@@ -12,41 +12,76 @@ import cpw.mods.fml.common.event.FMLStateEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.util.ReportedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@Log4j2
+import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
+
 public final class TestLoader {
     @Getter
     private final @NotNull Side side;
     private final Map<LoaderState, Set<ASMData>> testCandidates = new HashMap<>();
     @Getter
     private @Nullable LoaderState gameStopState;
+    @Getter
+    private LoaderState currentState;
 
     public TestLoader() {
+        LOG.info("Setting up MCInGameTester");
         side = FMLCommonHandler.instance().getSide();
+        if (side.isClient())
+            LOG.info("Client side environment!");
+        else
+            LOG.info("Server side environment!");
     }
 
     // I hope this table contains information from all modifications :)
     public void parseASMTable(@NotNull ASMDataTable table) {
-        table.getAll(Common.class.getName()).forEach(this::registerTestClass);
-        if (side.isClient())
-            table.getAll(Client.class.getName()).forEach(this::registerTestClass);
-        else
-            table.getAll(Server.class.getName()).forEach(this::registerTestClass);
-        gameStopState = testCandidates.keySet().stream().max(Comparator.comparingInt(Enum::ordinal)).orElse(null);
-        System.out.println(gameStopState);
+        try {
+            table.getAll(Common.class.getName()).forEach(this::registerTestClass);
+            LOG.info("Found " + testCandidates.size() + " classes with common tests");
+            val commonCount = testCandidates.size();
+            if (side.isClient()) {
+                table.getAll(Client.class.getName()).forEach(this::registerTestClass);
+                LOG.info("Found " + (testCandidates.size() - commonCount) + " classes with client tests");
+            } else {
+                table.getAll(Server.class.getName()).forEach(this::registerTestClass);
+                LOG.info("Found " + (testCandidates.size() - commonCount) + " classes with server tests");
+            }
+            gameStopState = testCandidates.keySet().stream().max(Comparator.comparingInt(Enum::ordinal)).orElse(null);
+            if (gameStopState != null)
+                LOG.info("All tests ends on " + gameStopState + " state, game will stopped after this state!");
+            else LOG.info("No tests found, game not will be stopped after loading. It's strange...");
+        } catch (Exception any) {
+            throw new ReportedException(CrashReport.makeCrashReport(any, "Error while MCInGameTesting loading"));
+        }
     }
 
     public void onFMLStateEvent(@NotNull FMLStateEvent event) {
-        val eventState = getLoaderStateFromEventClass(event.getClass());
+        currentState = getLoaderStateFromEventClass(event.getClass());
+        val tests = testCandidates.get(currentState);
+        if (tests != null) {
+            LOG.info("Running " + currentState + " tests...");
+            tests.forEach(test -> {
+                TestContainer container;
+                try {
+                    container = new TestContainer(test.getClassName());
+                } catch (Exception any) {
+                    throw new ReportedException(CrashReport.makeCrashReport(any, "Error while test construction"));
+                }
+                container.runTests();
+            });
+        }
         if (gameStopState != null)
-            if (gameStopState.equals(eventState))
+            if (gameStopState.equals(currentState)) {
+                LOG.info("Congratulations, all tests ended success, stopping the game...");
                 FMLCommonHandler.instance().exitJava(0, true);
+            }
     }
 
     private void registerTestClass(@NotNull ASMData data) {

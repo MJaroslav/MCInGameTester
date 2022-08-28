@@ -1,6 +1,7 @@
 package com.github.mjaroslav.mcingametester;
 
 import com.github.mjaroslav.mcingametester.common.CommonProxy;
+import com.github.mjaroslav.mcingametester.loader.TestLoader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -12,6 +13,8 @@ import static com.github.mjaroslav.mcingametester.lib.ModInfo.*;
 
 @Mod(modid = MOD_ID, name = NAME, version = VERSION, dependencies = DEPENDENCIES)
 public final class MCInGameTester {
+    public static final @NotNull TestLoader LOADER = new TestLoader();
+
     @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
     public static CommonProxy proxy;
 
@@ -20,51 +23,53 @@ public final class MCInGameTester {
 
     @EventHandler
     public void onFMLConstructionEvent(@NotNull FMLConstructionEvent event) {
-        proxy.onFMLConstructionEvent(event);
+        LOADER.parseASMTable(event.getASMHarvestedData());
+        LOG.info("MCInGameTester ready");
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLPreInitializationEvent(@NotNull FMLPreInitializationEvent event) {
-        proxy.onFMLPreInitializationEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLInitializationEvent(@NotNull FMLInitializationEvent event) {
-        proxy.onFMLInitializationEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLPostInitializationEvent(@NotNull FMLPostInitializationEvent event) {
-        proxy.onFMLPostInitializationEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLServerAboutToStartEvent(@NotNull FMLServerAboutToStartEvent event) {
-        proxy.onFMLServerAboutToStartEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLServerStartedEvent(@NotNull FMLServerStartedEvent event) {
-        proxy.onFMLServerStartedEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLServerStartingEvent(@NotNull FMLServerStartingEvent event) {
-        proxy.onFMLServerStartingEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLServerStoppedEvent(@NotNull FMLServerStoppedEvent event) {
-        proxy.onFMLServerStoppedEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLServerStoppingEvent(@NotNull FMLServerStoppingEvent event) {
-        proxy.onFMLServerStoppingEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 
     @EventHandler
     public void onFMLLoadCompleteEvent(@NotNull FMLLoadCompleteEvent event) {
-        proxy.onFMLLoadCompleteEvent(event);
+        LOADER.onFMLStateEvent(event);
     }
 }
