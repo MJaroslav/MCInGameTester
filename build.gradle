@@ -94,6 +94,7 @@ publishing {
 		mavenJava(MavenPublication) {
             artifact jar
 			artifact devJar
+			artifact sourcesJar
         }
     }
 }
