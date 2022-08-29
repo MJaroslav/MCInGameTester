@@ -4,6 +4,7 @@ import com.github.mjaroslav.mcingametester.MCInGameTester;
 import com.github.mjaroslav.mcingametester.api.*;
 import com.github.mjaroslav.mcingametester.lib.ModInfo;
 import cpw.mods.fml.common.ClassNameUtils;
+import cpw.mods.fml.common.FMLCommonHandler;
 import lombok.val;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.server.MinecraftServer;
@@ -142,8 +143,7 @@ public final class TestContainer {
                 else if (e.getCause() instanceof AssertionError assertError) {
                     ModInfo.LOG.error("Test " + getTestClassName() + "/" + method.getName() +
                             " failed", e.getCause());
-                    // Go Go Upper
-                    throw assertError; // On LoaderState.AVAILABLE runtime exception in client ignored. Strange
+                    FMLCommonHandler.instance().exitJava(-1, true); // WTF I don't know why exceptions is ignored on client anyway
                 } else
                     ModInfo.LOG.error("Strange exception in " + getTestClassName() + "/" + method.getName(),
                             e.getCause());
