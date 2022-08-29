@@ -13,4 +13,6 @@ public final class ModInfo {
     public static final String SERVER_PROXY = "com.github.mjaroslav.mcingametester.common.CommonProxy";
 
     public static final Logger LOG = LogManager.getLogger(NAME);
+
+    public static final String PROP_STOP_AFTER_SUCCESS = NAME + ".stopAfterSuccess";
 }

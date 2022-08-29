@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
+import static com.github.mjaroslav.mcingametester.lib.ModInfo.PROP_STOP_AFTER_SUCCESS;
 
 public final class TestLoader {
     @Getter
@@ -79,8 +80,13 @@ public final class TestLoader {
         }
         if (gameStopState != null)
             if (gameStopState.equals(currentState)) {
-                LOG.info("Congratulations, all tests ended success, stopping the game...");
-                FMLCommonHandler.instance().exitJava(0, true);
+                LOG.info("Congratulations, all tests ended success");
+                if (Config.isGameShouldBeStoppedAfterSuccessTests()) {
+                    LOG.info("Game will be stopped now, you can prevent this by running with -D" +
+                            PROP_STOP_AFTER_SUCCESS + "=false JVM argument");
+                    FMLCommonHandler.instance().exitJava(0, true);
+                } else LOG.warn("You run tests with -D" +
+                        PROP_STOP_AFTER_SUCCESS + "=false JVM argument, game not will stopped");
             }
     }
 

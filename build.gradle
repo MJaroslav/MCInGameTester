@@ -16,13 +16,20 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'forge'
 apply plugin: 'maven-publish'
+// For self testing and providing game test tasks
+apply from: './gradle/configurations/v1.gradle'
 
 repositories {
     mavenCentral()
-    maven {
+    maven { // Required for patched CCL and CCC, but you can use it for other mods too :)
         name "Gregtech repo"
         url 'https://gregtech.overminddl1.com'
     }
+}
+
+// For self testing and providing game test tasks
+configurations {
+    testImplementation.exclude group: project.group, module: project.name
 }
 
 def buildprop = new Properties()
