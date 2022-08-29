@@ -51,5 +51,5 @@ task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
 }
 
 dependencies {
-    testImplementation "com.github.MJaroslav:MCInGameTester:1.0.1:dev" // dev for deobf version
+    testImplementation "com.github.MJaroslav:MCInGameTester:1.0.2:dev" // dev for deobf version
 }
