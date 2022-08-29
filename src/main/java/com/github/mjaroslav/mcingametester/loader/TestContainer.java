@@ -2,6 +2,7 @@ package com.github.mjaroslav.mcingametester.loader;
 
 import com.github.mjaroslav.mcingametester.MCInGameTester;
 import com.github.mjaroslav.mcingametester.api.*;
+import com.github.mjaroslav.mcingametester.lib.ModInfo;
 import cpw.mods.fml.common.ClassNameUtils;
 import lombok.val;
 import net.minecraft.crash.CrashReport;
@@ -138,9 +139,14 @@ public final class TestContainer {
             } catch (InvocationTargetException e) {
                 if (isStatic)
                     throw new ReportedException(CrashReport.makeCrashReport(e, "Error while test execution"));
-                else
-                    throw new RuntimeException("Test " + getTestClassName() + "/" + method.getName()
-                            + " failed", e.getCause());
+                else if (e.getCause() instanceof AssertionError assertError) {
+                    ModInfo.LOG.error("Test " + getTestClassName() + "/" + method.getName() +
+                            " failed", e.getCause());
+                    // Go Go Upper
+                    throw assertError; // On LoaderState.AVAILABLE runtime exception in client ignored. Strange
+                } else
+                    ModInfo.LOG.error("Strange exception in " + getTestClassName() + "/" + method.getName(),
+                            e.getCause());
             }
     }
 
