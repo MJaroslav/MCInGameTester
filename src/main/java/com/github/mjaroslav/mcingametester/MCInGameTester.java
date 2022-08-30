@@ -1,7 +1,9 @@
 package com.github.mjaroslav.mcingametester;
 
 import com.github.mjaroslav.mcingametester.common.CommonProxy;
+import com.github.mjaroslav.mcingametester.loader.Config;
 import com.github.mjaroslav.mcingametester.loader.TestLoader;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -71,5 +73,9 @@ public final class MCInGameTester {
     @EventHandler
     public void onFMLLoadCompleteEvent(@NotNull FMLLoadCompleteEvent event) {
         LOADER.onFMLStateEvent(event);
+    }
+
+    public static void stopTheGame(boolean normal) {
+        FMLCommonHandler.instance().exitJava(normal ? 0 : 1, Config.isShouldHaltExit());
     }
 }

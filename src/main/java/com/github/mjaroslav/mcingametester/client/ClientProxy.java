@@ -1,6 +1,7 @@
 package com.github.mjaroslav.mcingametester.client;
 
 import com.github.mjaroslav.mcingametester.common.CommonProxy;
+import com.github.mjaroslav.mcingametester.loader.Test;
 import com.github.mjaroslav.mcingametester.loader.TestContainer;
 import cpw.mods.fml.common.ProgressManager;
 import cpw.mods.fml.common.ProgressManager.ProgressBar;
@@ -13,13 +14,13 @@ public final class ClientProxy extends CommonProxy {
     @Override
     public void startLogTest(@NotNull TestContainer container) {
         super.startLogTest(container);
-        currentBar = ProgressManager.push("Tests@" + current.getTestClassName(), current.getTestCount());
+        currentBar = ProgressManager.push("Tests@" + current.getContainerName(), current.getTestCount());
     }
 
     @Override
-    public void stepLogTest(@NotNull String testName) {
-        super.stepLogTest(testName);
-        currentBar.step(testName);
+    public void stepLogTest(@NotNull Test test) {
+        super.stepLogTest(test);
+        currentBar.step(test.getName());
     }
 
     @Override

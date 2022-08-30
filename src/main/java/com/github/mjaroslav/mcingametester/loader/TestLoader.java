@@ -1,5 +1,6 @@
 package com.github.mjaroslav.mcingametester.loader;
 
+import com.github.mjaroslav.mcingametester.MCInGameTester;
 import com.github.mjaroslav.mcingametester.api.Client;
 import com.github.mjaroslav.mcingametester.api.Common;
 import com.github.mjaroslav.mcingametester.api.Server;
@@ -11,6 +12,7 @@ import cpw.mods.fml.common.discovery.asm.ModAnnotation.EnumHolder;
 import cpw.mods.fml.common.event.FMLStateEvent;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import net.minecraft.crash.CrashReport;
@@ -20,17 +22,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
-import static com.github.mjaroslav.mcingametester.lib.ModInfo.PROP_STOP_AFTER_SUCCESS;
+import static com.github.mjaroslav.mcingametester.lib.ModInfo.*;
 
-public final class TestLoader {
-    @Getter
-    private final @NotNull Side side;
-    private final Map<LoaderState, Set<ASMData>> testCandidates = new HashMap<>();
-    @Getter
-    private @Nullable LoaderState gameStopState;
-    @Getter
-    private LoaderState currentState;
+// TODO: Write abstractions for using customs test workers
+@Getter
+public class TestLoader {
+    protected final @NotNull Side side;
+    @Getter(AccessLevel.NONE)
+    protected final Map<LoaderState, Set<ASMData>> containerCandidates = new HashMap<>();
+    protected LoaderState gameStopState;
+    protected LoaderState currentState;
+
+    protected final @NotNull TestRunner runner;
 
     public TestLoader() {
         LOG.info("Setting up MCInGameTester");
@@ -39,25 +42,31 @@ public final class TestLoader {
             LOG.info("Client side environment!");
         else
             LOG.info("Server side environment!");
+        runner = createRunner();
+    }
+
+    protected @NotNull TestRunner createRunner() {
+        return new TestRunner();
     }
 
     // I hope this table contains information from all modifications :)
     public void parseASMTable(@NotNull ASMDataTable table) {
         try {
             table.getAll(Common.class.getName()).forEach(this::registerTestClass);
-            LOG.info("Found " + testCandidates.size() + " classes with common tests");
-            val commonCount = testCandidates.size();
+            LOG.info("Found " + containerCandidates.size() + " classes with common tests");
+            val commonCount = containerCandidates.size();
             if (side.isClient()) {
                 table.getAll(Client.class.getName()).forEach(this::registerTestClass);
-                LOG.info("Found " + (testCandidates.size() - commonCount) + " classes with client tests");
+                LOG.info("Found " + (containerCandidates.size() - commonCount) + " classes with client tests");
             } else {
                 table.getAll(Server.class.getName()).forEach(this::registerTestClass);
-                LOG.info("Found " + (testCandidates.size() - commonCount) + " classes with server tests");
+                LOG.info("Found " + (containerCandidates.size() - commonCount) + " classes with server tests");
             }
-            gameStopState = testCandidates.keySet().stream().max(Comparator.comparingInt(Enum::ordinal)).orElse(null);
-            if (gameStopState != null)
-                LOG.info("All tests ends on " + gameStopState + " state, game will stopped after this state!");
-            else LOG.info("No tests found, game not will be stopped after loading. It's strange...");
+            gameStopState = containerCandidates.keySet().stream().max(Comparator.comparingInt(Enum::ordinal))
+                    .orElse(LoaderState.AVAILABLE);
+            val forced = Config.getForcedGameStopState();
+            if (forced != null) gameStopState = forced;
+            LOG.info("All tests ends on " + gameStopState + " state, game will stopped after this state!");
         } catch (Exception any) {
             throw new ReportedException(CrashReport.makeCrashReport(any, "Error while MCInGameTesting loading"));
         }
@@ -65,36 +74,39 @@ public final class TestLoader {
 
     public void onFMLStateEvent(@NotNull FMLStateEvent event) {
         currentState = getLoaderStateFromEventClass(event.getClass());
-        val tests = testCandidates.get(currentState);
-        if (tests != null) {
+        val candidates = containerCandidates.get(currentState);
+        if (candidates != null) {
             LOG.info("Running " + currentState + " tests...");
-            tests.forEach(test -> {
+            for (var candidate : candidates) {
                 TestContainer container;
                 try {
-                    container = new TestContainer(test.getClassName());
-                } catch (Exception any) {
-                    throw new ReportedException(CrashReport.makeCrashReport(any, "Error while test construction"));
+                    container = TestFactory.buildTestContainerFromClassName(candidate.getClassName());
+                    runner.runTestsFromContainer(container);
+                } catch (Exception e) {
+                    LOG.error("Error while loading and/or running test container " + candidate.getClassName(), e);
+                    MCInGameTester.stopTheGame(false);
                 }
-                container.runTests();
-            });
+            }
         }
         if (gameStopState != null)
             if (gameStopState.equals(currentState)) {
                 LOG.info("Congratulations, all tests ended success");
-                if (Config.isGameShouldBeStoppedAfterSuccessTests()) {
+                if (Config.isShouldStopAfterSuccess()) {
                     LOG.info("Game will be stopped now, you can prevent this by running with -D" +
-                            PROP_STOP_AFTER_SUCCESS + "=false JVM argument");
+                            PROP_STOP_AFTER_SUCCESS + "=false JVM argument or " + ENV_STOP_AFTER_SUCCESS +
+                            "=false environment variable");
                     FMLCommonHandler.instance().exitJava(0, true);
                 } else LOG.warn("You run tests with -D" +
-                        PROP_STOP_AFTER_SUCCESS + "=false JVM argument, game not will stopped");
+                        PROP_STOP_AFTER_SUCCESS + "=false JVM argument (or " + ENV_STOP_AFTER_SUCCESS +
+                        "=false environment variable), game not will stopped");
             }
     }
 
     private void registerTestClass(@NotNull ASMData data) {
         val state = parseLoaderStateFromAnnotationInfo(data);
-        if (!testCandidates.containsKey(state))
-            testCandidates.put(state, new HashSet<>());
-        testCandidates.get(state).add(data);
+        if (!containerCandidates.containsKey(state))
+            containerCandidates.put(state, new HashSet<>());
+        containerCandidates.get(state).add(data);
     }
 
     // WTF? Why EnumHolder exists and have private fields?
