@@ -3,14 +3,10 @@ buildscript {
         mavenCentral()
         maven {
             name 'forge'
-            url 'https://maven.minecraftforge.net'
+            url 'https://maven.minecraftforge.net/'
         }
     }
-    dependencies {
-        classpath('com.anatawa12.forge:ForgeGradle:1.2-1.0.+') {
-            changing = true
-        }
-    }
+    dependencies { classpath('com.anatawa12.forge:ForgeGradle:1.2-1.0.+') { changing = true } }
 }
 
 apply plugin: 'java'
@@ -22,7 +18,7 @@ apply from: './gradle/configurations/v1.gradle'
 repositories {
     mavenCentral()
     maven { // Required for patched CCL and CCC, but you can use it for other mods too :)
-        name "Gregtech repo"
+        name 'Gregtech repo'
         url 'https://gregtech.overminddl1.com'
     }
 }
@@ -57,9 +53,7 @@ configure([tasks.compileJava, tasks.compileTestJava, tasks.compileApiJava]) {
     sourceCompatibility = 16 // for the IDE support
     options.release = 8
 
-    javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(16)
-    }
+    javaCompiler = javaToolchains.compilerFor {languageVersion = JavaLanguageVersion.of(16) }
 }
 
 minecraft {
@@ -70,8 +64,8 @@ minecraft {
 
 dependencies {
     // Just for autosearch test of mappings directory
-    testRuntimeOnly "codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev"
-    testRuntimeOnly "codechicken:CodeChickenCore:1.7.10-1.0.7.47:dev"
+    testRuntimeOnly 'codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev'
+    testRuntimeOnly 'codechicken:CodeChickenCore:1.7.10-1.0.7.47:dev'
 
     compileOnly "org.jetbrains:annotations:${buildprop.jetbrains_annotations_version}"
     testCompileOnly "org.jetbrains:annotations:${buildprop.jetbrains_annotations_version}"
@@ -104,4 +98,9 @@ publishing {
 			artifact sourcesJar
         }
     }
+}
+
+if (System.getenv("CI") != null) {
+    if (System.getenv("HAS_HEADLESS_LIB") != null) tasks.test.dependsOn('testClient')
+    tasks.test.dependsOn('testServer')
 }

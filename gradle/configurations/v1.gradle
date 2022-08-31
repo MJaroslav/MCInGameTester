@@ -1,56 +1,75 @@
-repositories { maven { url 'https://jitpack.io' } }
+import org.gradle.work.DisableCachingByDefault
 
-task testJar(type: Jar, description: "Make temp jar from test source set",
-        group: "MCInGameTester") {
+@DisableCachingByDefault(because = 'Not worth caching')
+abstract class TestGameTask extends JavaExec {
+    @Input
+    abstract Property<Boolean> getClearWorkingDirBeforeLaunch()
+
+    @Input
+    abstract Property<Boolean> getEula()
+
+    @Input
+    abstract Property<Boolean> getLogOnlyTests()
+
+    @Input
+    abstract Property<Boolean> getCopyMappingsLocally()
+
+    TestGameTask() {
+        super()
+        dependsOn 'makeStart', 'genSrgs', 'jar', 'testJar'
+        group 'MCInGameTester'
+    }
+
+    @TaskAction
+    @Override
+    void exec() {
+        def file = getWorkingDir()
+        if (getClearWorkingDirBeforeLaunch()) { file.deleteDir(); file.mkdirs() }
+        if (getEula()) new File(file, "eula.txt").setText("eula=true")
+        if (getLogOnlyTests()) systemProperty 'log4j.configurationFile', 'mcingametester.xml'
+        if (getCopyMappingsLocally()) project.copy {
+            from project.plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
+            include '**/*.srg'
+            include "**/*.csv"
+            into new File(getWorkingDir(), "../conf")
+        }
+        classpath project.configurations.testRuntimeClasspath + project.files(project.tasks.jar) + project.files(project.tasks.testJar) - project.sourceSets.main.output - project.sourceSets.test.output
+        standardOutput System.out
+        errorOutput System.err
+        standardInput System.in
+        super.exec()
+    }
+}
+
+task testJar(type: Jar, description: 'Make temp jar from test source set',
+        group: 'MCInGameTester') {
     from sourceSets.test.output
     destinationDir getTemporaryDir()
 }
 
-task copyMappingsToProjectDir(type: Copy, dependsOn: 'genSrgs',
-        description: "Just copies mappings to build dir, it needed if you use CodeChickenLib (from GregTech maven)",
-        group: "MCInGameTester") {
-    from plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
-    include '**/*.srg'
-    include "**/*.csv"
-    into new File(tasks.testJar.getTemporaryDir(), "../conf")
+tasks.register('testClient', TestGameTask) {
+    clearWorkingDirBeforeLaunch = true
+    eula = false
+    logOnlyTests = true
+    copyMappingsLocally = true
+    description 'Runs the Minecraft Client, runs game tests then stop it'
+    setMain(tasks.runClient.main)
+    setWorkingDir(getTemporaryDir())
 }
 
-// Just wrapper for runClient task with using test source set
-task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
-        group: "MCInGameTester", description: "Runs the Minecraft Client, runs game tests then stop it") {
-    doFirst {
-        var f = getTemporaryDir(); f.deleteDir(); f.mkdirs() // Always clear server
-    }
-    // Outputs removed for avoiding mod duplications
-    // Uses jars for manifests
-    classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
-    main tasks.runClient.main
-    args tasks.runClient.args
-    jvmArgs tasks.runClient.jvmArgs + (System.getenv("ONlY_TEST_LOG") != null ? ["-Dlog4j.configurationFile=mcingametester.xml"] : []) // WTF WHY DON'T WORK ON MY PC??
-    workingDir getTemporaryDir()
-    standardOutput tasks.runClient.standardOutput
-    errorOutput tasks.runClient.errorOutput
+tasks.register('testServer', TestGameTask) {
+    clearWorkingDirBeforeLaunch = true
+    eula = true
+    logOnlyTests = true
+    copyMappingsLocally = true
+    description 'Runs the Minecraft Server, runs game tests then stop it'
+    args args + "--nogui"
+    setMain(tasks.runServer.main)
+    setWorkingDir(getTemporaryDir())
 }
 
-// Just wrapper for runServer task with using test source set
-task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectDir", "jar", "testJar"],
-        group: "MCInGameTester", description: "Runs the Minecraft Server, runs game tests then stop it") {
-    doFirst {
-        var f = getTemporaryDir(); f.deleteDir(); f.mkdirs() // Always clear server
-        new File(getTemporaryDir(), "eula.txt").setText("eula=true") // auto eula
-    }
-    // Outputs removed for avoiding mod duplications
-    // Uses jars for manifests
-    classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
-    main tasks.runServer.main
-    args tasks.runServer.args
-    jvmArgs tasks.runServer.jvmArgs + (System.getenv("ONlY_TEST_LOG") != null ? ["-Dlog4j.configurationFile=mcingametester.xml"] : []) // WTF WHY DON'T WORK ON MY PC??
-    println(jvmArgs)
-    workingDir getTemporaryDir()
-    standardOutput tasks.runServer.standardOutput
-    errorOutput tasks.runServer.errorOutput
-}
+repositories { maven { url 'https://jitpack.io' } }
 
 dependencies {
-    testImplementation "com.github.MJaroslav:MCInGameTester:1.0.3:dev" // dev for deobf version
+    testImplementation 'com.github.MJaroslav:MCInGameTester:1.0.3:dev' // dev for deobf version
 }
