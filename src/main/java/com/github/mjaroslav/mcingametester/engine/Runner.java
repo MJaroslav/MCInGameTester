@@ -1,24 +1,18 @@
-package com.github.mjaroslav.mcingametester.loader;
+package com.github.mjaroslav.mcingametester.engine;
 
-import com.github.mjaroslav.mcingametester.MCInGameTester;
+import com.github.mjaroslav.mcingametester.mod.MCInGameTester;
+import com.github.mjaroslav.mcingametester.util.Utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
 
-public class TestRunner {
-    protected Set<TestContainer> containers = new HashSet<>();
-
-    public TestRunner() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOG.info("Test results:");
-            for (var container : containers)
-                TestPrinter.printResultsFromContainer(container);
-        }));
-    }
+public final class Runner {
+    public final Set<TestContainer> containers = new HashSet<>();
 
     public void runTestsFromContainer(@NotNull TestContainer container) throws InvocationTargetException,
             IllegalAccessException {
@@ -26,21 +20,22 @@ public class TestRunner {
         containers.add(container);
         if (container.getBeforeClassMethod() != null)
             container.getBeforeClassMethod().invoke(null);
-        for (var test : container.getTests()) {
+        for (var test : container.getTestTasks()) {
             try {
                 MCInGameTester.proxy.stepLogTest(test);
                 runTest(container, test);
                 test.setResult(TestState.SUCCESS, null);
             } catch (Throwable e) {
-                if (e instanceof TestException fail) {
-                    test.setResult(TestState.FAIL, fail.getCause());
+                if (e instanceof AssertionError fail) {
+                    test.setResult(TestState.FAIL, fail);
                     if (Config.isShouldStopOnFirstFail()) {
-                        TestPrinter.printResultFromTest(test);
-                        MCInGameTester.stopTheGame(false);
+                        Utils.stopTheGame(test);
+                        return;
                     }
                 } else {
                     LOG.error("Error while running " + test.toString(), e);
-                    MCInGameTester.stopTheGame(false);
+                    Utils.stopTheGame(false);
+                    return;
                 }
             }
         }
@@ -49,17 +44,24 @@ public class TestRunner {
         MCInGameTester.proxy.endLogTest();
     }
 
-    public void runTest(@NotNull TestContainer container, @NotNull Test test) throws Throwable {
+    public void runTest(@NotNull TestContainer container, @NotNull TestTask testTask) throws Throwable {
         if (container.getBeforeEachMethod() != null)
             container.getBeforeEachMethod().invoke(container.getObject());
         try {
-            test.getTestMethod().invoke(test.getTestObject());
+            testTask.getTestMethod().invoke(testTask.getTestObject());
         } catch (InvocationTargetException e) {
-            if (!e.getCause().getClass().equals(test.getExpectedException())) // Ignore expected
-                if (e.getCause() instanceof AssertionError) throw new TestException(e.getCause()); // Fail test
-                else throw e.getCause(); // Error while testing
+            if (e.getCause() instanceof AssertionError ||
+                    !e.getCause().getClass().equals(testTask.getExpectedException()))
+                throw e.getCause();
+            else if (testTask.getExpectedException() != null)
+                throw new AssertionError("Unexpected exception: " + e, e);
         }
         if (container.getAfterEachMethod() != null)
             container.getAfterEachMethod().invoke(container.getObject());
+    }
+
+    public @NotNull TestState getState() {
+        return containers.stream().map(TestContainer::getState).max(Comparator.comparingInt(Enum::ordinal))
+                .orElse(TestState.AWAITING);
     }
 }

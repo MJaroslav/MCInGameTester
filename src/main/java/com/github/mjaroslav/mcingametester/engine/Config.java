@@ -1,4 +1,4 @@
-package com.github.mjaroslav.mcingametester.loader;
+package com.github.mjaroslav.mcingametester.engine;
 
 import cpw.mods.fml.common.LoaderState;
 import lombok.experimental.UtilityClass;

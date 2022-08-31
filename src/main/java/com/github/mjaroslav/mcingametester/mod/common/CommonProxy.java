@@ -1,7 +1,7 @@
-package com.github.mjaroslav.mcingametester.common;
+package com.github.mjaroslav.mcingametester.mod.common;
 
-import com.github.mjaroslav.mcingametester.loader.Test;
-import com.github.mjaroslav.mcingametester.loader.TestContainer;
+import com.github.mjaroslav.mcingametester.engine.TestTask;
+import com.github.mjaroslav.mcingametester.engine.TestContainer;
 import org.jetbrains.annotations.NotNull;
 
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
@@ -16,8 +16,8 @@ public class CommonProxy {
         LOG.info("Testing of " + current.getContainerName() + " that contains " + current.getTestCount() + " tests...");
     }
 
-    public void stepLogTest(@NotNull Test test) {
-        LOG.info("Run test " + test.getName() + " (" + tested++ + "/" + current.getTestCount() + ")...");
+    public void stepLogTest(@NotNull TestTask testTask) {
+        LOG.info("Run test " + testTask.getName() + " (" + tested++ + "/" + current.getTestCount() + ")...");
     }
 
     public void endLogTest() {

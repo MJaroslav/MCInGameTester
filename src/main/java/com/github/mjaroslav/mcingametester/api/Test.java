@@ -10,5 +10,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Test {
-    @NotNull Class<?> value() default void.class;
+    @NotNull Class<? extends Throwable> expected() default None.class;
+
+    final class None extends Throwable {
+    }
 }

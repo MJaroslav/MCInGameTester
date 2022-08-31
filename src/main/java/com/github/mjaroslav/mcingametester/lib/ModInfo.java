@@ -9,8 +9,8 @@ public final class ModInfo {
     public static final String VERSION = "@VERSION@";
     public static final String DEPENDENCIES = "after:*;"; // After all mods
 
-    public static final String CLIENT_PROXY = "com.github.mjaroslav.mcingametester.client.ClientProxy";
-    public static final String SERVER_PROXY = "com.github.mjaroslav.mcingametester.common.CommonProxy";
+    public static final String CLIENT_PROXY = "com.github.mjaroslav.mcingametester.mod.client.ClientProxy";
+    public static final String SERVER_PROXY = "com.github.mjaroslav.mcingametester.mod.common.CommonProxy";
 
     public static final Logger LOG = LogManager.getLogger(NAME);
 

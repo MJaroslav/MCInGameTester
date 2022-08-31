@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Client {
-    @NotNull LoaderState value() default LoaderState.AVAILABLE;
+    @NotNull LoaderState when() default LoaderState.AVAILABLE;
 }

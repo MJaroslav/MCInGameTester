@@ -1,4 +1,4 @@
-package com.github.mjaroslav.mcingametester.loader;
+package com.github.mjaroslav.mcingametester.engine;
 
 import cpw.mods.fml.common.ClassNameUtils;
 import lombok.Getter;
@@ -23,10 +23,10 @@ public class TestContainer {
     protected final @Nullable Method afterEachMethod;
 
     protected final @NotNull Object object;
-    protected final @NotNull Set<Test> tests = new HashSet<>();
+    protected final @NotNull Set<TestTask> testTasks = new HashSet<>();
 
-    public void addTest(@NotNull Test test) {
-        tests.add(test);
+    public void addTest(@NotNull TestTask testTask) {
+        testTasks.add(testTask);
     }
 
     public @NotNull String getContainerName() {
@@ -34,16 +34,16 @@ public class TestContainer {
     }
 
     public @NotNull TestState getState() {
-        return getTests().stream().map(Test::getState).max(Comparator.comparingInt(Enum::ordinal))
-                .orElse(TestState.UNSTARTED);
+        return getTestTasks().stream().map(TestTask::getState).max(Comparator.comparingInt(Enum::ordinal))
+                .orElse(TestState.AWAITING);
     }
 
     public int getTestCount() {
-        return getTests().size();
+        return getTestTasks().size();
     }
 
     public boolean isHaveNoTests() {
-        return getTests().isEmpty();
+        return getTestTasks().isEmpty();
     }
 
     @Override

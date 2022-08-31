@@ -1,8 +1,8 @@
-package com.github.mjaroslav.mcingametester.client;
+package com.github.mjaroslav.mcingametester.mod.client;
 
-import com.github.mjaroslav.mcingametester.common.CommonProxy;
-import com.github.mjaroslav.mcingametester.loader.Test;
-import com.github.mjaroslav.mcingametester.loader.TestContainer;
+import com.github.mjaroslav.mcingametester.mod.common.CommonProxy;
+import com.github.mjaroslav.mcingametester.engine.TestTask;
+import com.github.mjaroslav.mcingametester.engine.TestContainer;
 import cpw.mods.fml.common.ProgressManager;
 import cpw.mods.fml.common.ProgressManager.ProgressBar;
 import org.jetbrains.annotations.NotNull;
@@ -18,9 +18,9 @@ public final class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void stepLogTest(@NotNull Test test) {
-        super.stepLogTest(test);
-        currentBar.step(test.getName());
+    public void stepLogTest(@NotNull TestTask testTask) {
+        super.stepLogTest(testTask);
+        currentBar.step(testTask.getName());
     }
 
     @Override

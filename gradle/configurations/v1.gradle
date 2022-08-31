@@ -26,7 +26,7 @@ task testClient(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
     classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
     main tasks.runClient.main
     args tasks.runClient.args
-    jvmArgs tasks.runClient.jvmArgs
+    jvmArgs tasks.runClient.jvmArgs + (System.getenv("ONlY_TEST_LOG") != null ? ["-Dlog4j.configurationFile=mcingametester.xml"] : []) // WTF WHY DON'T WORK ON MY PC??
     workingDir getTemporaryDir()
     standardOutput tasks.runClient.standardOutput
     errorOutput tasks.runClient.errorOutput
@@ -44,7 +44,8 @@ task testServer(type: JavaExec, dependsOn: ["makeStart", "copyMappingsToProjectD
     classpath project.configurations.testRuntimeClasspath + files(tasks.jar) + files(tasks.testJar) - sourceSets.main.output - sourceSets.test.output
     main tasks.runServer.main
     args tasks.runServer.args
-    jvmArgs tasks.runServer.jvmArgs
+    jvmArgs tasks.runServer.jvmArgs + (System.getenv("ONlY_TEST_LOG") != null ? ["-Dlog4j.configurationFile=mcingametester.xml"] : []) // WTF WHY DON'T WORK ON MY PC??
+    println(jvmArgs)
     workingDir getTemporaryDir()
     standardOutput tasks.runServer.standardOutput
     errorOutput tasks.runServer.errorOutput
