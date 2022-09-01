@@ -71,5 +71,5 @@ tasks.register('testServer', TestGameTask) {
 repositories { maven { url 'https://jitpack.io' } }
 
 dependencies {
-    testImplementation 'com.github.MJaroslav:MCInGameTester:1.0.3:dev' // dev for deobf version
+    testImplementation 'com.github.MJaroslav:MCInGameTester:1.1.0:dev' // dev for deobf version
 }
