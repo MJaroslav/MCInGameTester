@@ -50,10 +50,9 @@ public final class Runner {
         try {
             testTask.getTestMethod().invoke(testTask.getTestObject());
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof AssertionError ||
-                    !e.getCause().getClass().equals(testTask.getExpectedException()))
+            if (e.getCause() instanceof AssertionError)
                 throw e.getCause();
-            else if (testTask.getExpectedException() != null)
+            else if (!e.getCause().getClass().equals(testTask.getExpectedException()))
                 throw new AssertionError("Unexpected exception: " + e, e);
         }
         if (container.getAfterEachMethod() != null)

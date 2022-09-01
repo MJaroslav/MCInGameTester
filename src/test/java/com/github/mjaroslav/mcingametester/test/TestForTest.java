@@ -39,4 +39,10 @@ public class TestForTest {
     public void test$3() {
         ModInfo.LOG.info("Running test$1");
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void test$4() {
+        ModInfo.LOG.info("Running test$4 with expected exception");
+        throw new IllegalStateException("Expected");
+    }
 }
