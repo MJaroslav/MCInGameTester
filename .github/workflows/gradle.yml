@@ -22,5 +22,6 @@ jobs:
     - name: Run all tests headless
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: ./gradlew test testClient testServer
-
+        run: ./gradlew test
+      env:
+        HAS_HEADLESS_LIB: true

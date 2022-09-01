@@ -13,7 +13,6 @@ public class Printer {
     }
 
     public void printResultFromTest(@NotNull TestTask testTask) {
-        LOG.info("\n\n\n");
         if (testTask.getState() == TestState.FAIL) LOG.error(testTask + " FAILED\n" + testTask.getResult());
         else LOG.info(testTask + " SUCCESS");
     }
