@@ -79,20 +79,31 @@ import com.github.mjaroslav.mcingametester.api.*;
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
 
 @Server // Server side tests.
-public class TestClientSide {
+public class TestServerSide {
     @AfterEach
     void afterEach() {
-        LOG.info("Will executed after each test of this class on client side");
+        LOG.info("Will executed after each test of this class on server side");
     }
     
     @Test
-    void test$common() {
-        LOG.info("Will executed on client side");
+    void test$server() {
+        LOG.info("Will executed on server side");
     }
 }
 ```
 
 ### Test execution
+
+Every test can return one of three results:
+
+- `SUCCESS` - expected throwable was thrown (if present in `@Test`) and anything else wasn't thrown.
+- `FAILED` - expected throwable wasn't thrown (if present in `@Test`) or `AssertionError` was thrown and anything else
+  wasn't thrown.
+- `ERROR` - just error in test, for example not expected exception thrown. It will crash the game.
+
+**Note:** For not throwing AssertionErrors in tests manually, you can use `Assert` util class.
+
+#### Examples
 
 TODO
 
