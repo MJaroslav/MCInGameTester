@@ -21,7 +21,7 @@ public class Parser {
         Method beforeEachMethod = null;
         Method afterEachMethod = null;
         val testMethods = new HashSet<Method>();
-        for (var method : testClass.getMethods()) {
+        for (var method : testClass.getDeclaredMethods()) {
             val mods = method.getModifiers();
             val notVoid = !method.getReturnType().equals(void.class);
             if (!Modifier.isPublic(mods)) method.setAccessible(true); // Just make all methods public by one line, lol
@@ -49,7 +49,7 @@ public class Parser {
             }
         }
         Field worldField = null;
-        for (var field : testClass.getFields())
+        for (var field : testClass.getDeclaredFields())
             if (field.isAnnotationPresent(WorldShadow.class)) {
                 val mods = testClass.getModifiers();
                 if (Modifier.isStatic(mods)) throw new IllegalStateException("@WorldShadow field should be non-static");

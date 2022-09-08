@@ -63,7 +63,7 @@ tasks.register('testServer', TestGameTask) {
     logOnlyTests = true
     copyMappingsLocally = true
     description 'Runs the Minecraft Server, runs game tests then stop it'
-    args args + "--nogui"
+    args args + "nogui"
     setMain(tasks.runServer.main)
     setWorkingDir(getTemporaryDir())
 }
@@ -72,4 +72,11 @@ repositories { maven { url 'https://jitpack.io' } }
 
 dependencies {
     testImplementation 'com.github.MJaroslav:MCInGameTester:1.1.0:dev' // dev for deobf version
+}
+
+// Add game tests to test in CI environment
+if (Boolean.parseBoolean(System.getenv("CI"))) {
+    // Add client only if OS has head or headless wrapper lib
+    if (Boolean.parseBoolean(System.getenv("HAS_HEADLESS_LIB"))) tasks.test.dependsOn('testClient')
+    tasks.test.dependsOn('testServer')
 }

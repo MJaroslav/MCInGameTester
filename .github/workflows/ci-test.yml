@@ -1,10 +1,6 @@
-name: Java CI with Gradle
+name: Run gradle tests
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: [push, pull_request]
 
 permissions:
   contents: read
@@ -19,6 +15,8 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
     - name: Run all tests headless
       uses: GabrielBB/xvfb-action@v1
       with:

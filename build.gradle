@@ -99,8 +99,3 @@ publishing {
         }
     }
 }
-
-if (Boolean.parseBoolean(System.getenv("CI"))) {
-    if (Boolean.parseBoolean(System.getenv("HAS_HEADLESS_LIB"))) tasks.test.dependsOn('testClient')
-    tasks.test.dependsOn('testServer')
-}

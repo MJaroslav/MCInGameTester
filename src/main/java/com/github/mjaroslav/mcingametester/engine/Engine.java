@@ -36,14 +36,15 @@ public final class Engine {
 
     public void findCandidates(@NotNull ASMDataTable table) {
         table.getAll(Common.class.getName()).forEach(this::addTestCandidate);
-        LOG.info("Found " + candidates.size() + " common test container candidates");
-        val commonCount = candidates.size();
+        val commonCount = getCandidatesCount();
+        LOG.info("Found " + commonCount + " common test container candidates");
+
         if (FMLCommonHandler.instance().getSide().isClient()) {
             table.getAll(Client.class.getName()).forEach(this::addTestCandidate);
-            LOG.info("Found " + (candidates.size() - commonCount) + " client test container candidates");
+            LOG.info("Found " + (getCandidatesCount() - commonCount) + " client test container candidates");
         } else {
             table.getAll(Server.class.getName()).forEach(this::addTestCandidate);
-            LOG.info("Found " + (candidates.size() - commonCount) + " server test container candidates");
+            LOG.info("Found " + (getCandidatesCount() - commonCount) + " server test container candidates");
         }
         gameStopState = candidates.keySet().stream().max(Comparator.comparingInt(Enum::ordinal))
                 .orElse(LoaderState.AVAILABLE);
@@ -81,6 +82,10 @@ public final class Engine {
                         PROP_STOP_AFTER_SUCCESS + "=false JVM argument (or " + ENV_STOP_AFTER_SUCCESS +
                         "=false environment variable), game not will stopped");
             }
+    }
+
+    private int getCandidatesCount() {
+        return candidates.values().stream().mapToInt(Set::size).sum();
     }
 
     private void addTestCandidate(@NotNull ASMData data) {
