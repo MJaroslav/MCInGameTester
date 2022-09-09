@@ -96,7 +96,7 @@ public class TestServerSide {
 }
 ```
 
-### Test execution
+### Test writing
 
 Every test can return one of three results:
 
@@ -139,6 +139,16 @@ void test$shadowWorld() {
 }
 ```
 
+### Test execution
+
+For run tests you should execute `testClient` and/or `testServer` task.
+
+**Note:** Be careful, running client on headless systems cause crash with LWJGL errors. You should use fake display for
+this, for example XVFB.
+
+**Note:** If `CI` environment variable is `true`, then game test tasks will to `test` task, but client only
+if `HAS_HEADLESS_LIB` environment variable is `true`.
+
 ## Configuration
 
 ### Environment variables
@@ -146,5 +156,68 @@ void test$shadowWorld() {
 TODO
 
 ### System properties
+
+TODO
+
+## CI environments
+
+### GitHub actions
+
+You can run tests without client or use XVFB wrapper action, for example configuration from this project:
+
+```yaml
+name: Run gradle tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Run all tests headless
+      uses: GabrielBB/xvfb-action@v1
+      with:
+        run: ./gradlew test
+      env:
+        HAS_HEADLESS_LIB: true
+```
+
+**Note:** `HAS_HEADLESS_LIB` environment variable required for client run and only if system has display or can fake it.
+
+### JitCI
+
+Thanks jitpack.io command for adding XVFB to their docker containers by my request.
+
+I use next non-standard settings for this project:
+
+- Environment variable `HAS_HEADLESS_LIB` that equals `true`
+- Replace test command
+  by `xvfb-run -e /dev/stdout -s "-screen 0 1280x1024x24 -ac -nolisten tcp -nolisten unix" -a ./gradlew test`
+
+**Note:** Disable dependency cache in init command if you have `cache('http')` or something problem.
+
+**Note:** It `jitpack.yml` I use next configuration with disabled CI (but you can use XVFB too):
+
+```yaml
+jdk:
+  - openjdk8
+install:
+  - ./gradlew build publishToMavenLocal
+env:
+  CI: false
+```
+
+### Planned
 
 TODO
