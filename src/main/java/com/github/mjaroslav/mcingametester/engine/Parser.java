@@ -51,7 +51,7 @@ public class Parser {
         Field worldField = null;
         for (var field : testClass.getDeclaredFields())
             if (field.isAnnotationPresent(WorldShadow.class)) {
-                val mods = testClass.getModifiers();
+                val mods = field.getModifiers();
                 if (Modifier.isStatic(mods)) throw new IllegalStateException("@WorldShadow field should be non-static");
                 if (!Modifier.isPublic(mods)) field.setAccessible(true);
                 if (!field.getType().equals(World.class))
