@@ -32,23 +32,26 @@ apply from: 'https://raw.githubusercontent.com/MJaroslav/MCInGameTester/master/g
 
 ### Declaring tests
 
-Just create classes in your test source set, then annotate them with `@Client` (for only client side),
-`@Server` (for only server side) or `@Common` (for both side).
+All that you need for making tests, contains in `com.github.mjaroslav.mcingametester.api` (API) package.  
+If you need to log something, use `com.github.mjaroslav.mcingametester.lib.ModInfo#LOG` logger.
 
-**Note**: All methods and fields in next instructions can be with any access modifier.
+**Test-like method** - it's a non-static void method without parameters.  
+**Test container** - it's a simple class with test-like methods.
 
-Now, you can write test in these classes. Test is annotated with `@Test` void method without parameters.
+**Note:** All annotated things by annotations from API in test containers can be with any access modifier.
 
-If you needs in executing something before or after each test, you can make test-like method but annotate it with \
-`@BeforeEach` or `@AfterEach` instead of `@Test`.
+For begin, just create test containers in your test source set and then annotate them with `@Client` (for only client
+side), `@Server` (for only server side) or `@Common` (for both side).
 
-If you needs in executing something before or after all tests in class, you can make static test-like method but
-annotate it with `@BeforeClass` or `@AfterClass` instead of `@Test`.
+Now, you can write tests in these classes. Just write test-like methods and annotate them with `@Test`.
 
-In addition, for Server sided tests you can make non-static World-typed field with `@WorldShadow` annotation. \
-It's sets Overworld World object to this field.
+If you needs in executing something before or after each test, you can make test-like method but annotate it with `@BeforeEach` or `@AfterEach` instead of `@Test`.
 
-**Note:** Only logger from `ModInfo.LOG` showed in game test tasks by default.
+If you needs in executing something before or after all tests in class, you can make **static** test-like method but annotate it with `@BeforeClass` or `@AfterClass` instead of `@Test`.
+
+In addition, for Server sided tests you can make non-static World-typed field with `@WorldShadow` annotation. It's sets Overworld World object to this field.
+
+**Note:** Only logger from `ModInfo` showed in game test tasks by default.
 
 #### Examples
 
@@ -101,9 +104,38 @@ Every test can return one of three results:
   wasn't thrown.
 - `ERROR` - just error in test, for example not expected exception thrown. It will crash the game.
 
-**Note:** For not throwing AssertionErrors in tests manually, you can use `Assert` util class.
+**Note:** For not throwing AssertionErrors in tests manually, you can use `Assert` class from API.
 
 #### Examples
+
+```java
+package ...;
+
+import com.github.mjaroslav.mcingametester.api.*;
+import cpw.mods.fml.common.FMLCommonHandler;
+
+@Server // Server side tests.
+public class TestServerSide {
+    @Test(expected = ClassNotFoundException.class)
+    void test$clientClass() throws ClassNotFoundException {
+        // Will throw expected ClassNotFoundException
+        Class.forName("net.minecraft.client.Minecraft");
+    }
+
+    @Test
+    void test$serverClass() throws ClassNotFoundException {
+        // Will crash only on client side with unexpected ClassNotFoundException.
+        // Hm... may be @Test needed in 'unexpected' parameter.
+        Class.forName("net.minecraft.server.dedicated.DedicatedServer");
+    }
+
+    @Test
+    void test$fmlSide() {
+        // Fails if isServer() return false. It's possible only in client.
+        Assert.isTrue(FMLCommonHandler.instance().getSide().isServer(), "Non server side");
+    }
+}
+```
 
 TODO
 
