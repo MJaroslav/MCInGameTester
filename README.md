@@ -43,28 +43,32 @@ If you need to log something, use `com.github.mjaroslav.mcingametester.lib.ModIn
 For begin, just create test containers in your test source set and then annotate them with `@Client` (for only client
 side), `@Server` (for only server side) or `@Common` (for both side).
 
+**Note:** For these three annotations, you can use  `when` parameter with `LoadState` type for setting loading state
+when tests should be run.
+
 Now, you can write tests in these classes. Just write test-like methods and annotate them with `@Test`.
 
-If you needs in executing something before or after each test, you can make test-like method but annotate it with `@BeforeEach` or `@AfterEach` instead of `@Test`.
+If you needs in executing something before or after each test, you can make test-like method but annotate it
+with `@BeforeEach` or `@AfterEach` instead of `@Test`.
 
-If you needs in executing something before or after all tests in class, you can make **static** test-like method but annotate it with `@BeforeClass` or `@AfterClass` instead of `@Test`.
+If you needs in executing something before or after all tests in class, you can make **static** test-like method but
+annotate it with `@BeforeClass` or `@AfterClass` instead of `@Test`.
 
-In addition, for Server sided tests you can make non-static World-typed field with `@WorldShadow` annotation. It's sets Overworld World object to this field.
+In addition, for Server sided tests you can make non-static World-typed field with `@WorldShadow` annotation. It's sets
+Overworld World object to this field.
 
 **Note:** Only logger from `ModInfo` showed in game test tasks by default.
 
 #### Examples
 
 ```java
-package ...;
-
-import com.github.mjaroslav.mcingametester.api.*;
-import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
-
-@Common // Both sides tests.
+// Tests from this test container will executed on both sides.
+@Common
 public class TestCommomSide {
+    // Be careful, all before/after methods should not throwing any exceptions.
     @BeforeClass
     static void beforeClass() {
+        // Static imported LOG from ModInfo.
         LOG.info("Will executed on both sides before all tests from this class");
     }
     
@@ -73,16 +77,13 @@ public class TestCommomSide {
         LOG.info("Will executed on both sides");
     }
 }
-```
 
-```java
-package ...;
-
-import com.github.mjaroslav.mcingametester.api.*;
-import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;
-
-@Server // Server side tests.
+// Tests from this test container will executed only on server side.
+@Server(when = LoadState.INITIALIZATION) // Tests will executed in end (after other mods) of initialization state.
 public class TestServerSide {
+    @WorldShadow
+    World overworld; // Getter for server Overworld (dim 0). 
+
     @AfterEach
     void afterEach() {
         LOG.info("Will executed after each test of this class on server side");
@@ -99,45 +100,44 @@ public class TestServerSide {
 
 Every test can return one of three results:
 
-- `SUCCESS` - expected throwable was thrown (if present in `@Test`) and anything else wasn't thrown.
-- `FAILED` - expected throwable wasn't thrown (if present in `@Test`) or `AssertionError` was thrown and anything else
+- `SUCCESS` - expected throwable was thrown (if present by `expected` parameter in `@Test`) and anything else wasn't
+  thrown.
+- `FAILED` - expected throwable wasn't thrown (if present by `expected` parameter in `@Test`) or `AssertionError` was
+  thrown and anything else
   wasn't thrown.
-- `ERROR` - just error in test, for example not expected exception thrown. It will crash the game.
+- `ERROR` - just error in test engine, for example bad test syntax. It will crash the game.
 
-**Note:** For not throwing AssertionErrors in tests manually, you can use `Assert` class from API.
+**Note:** For not throwing AssertionErrors in tests manually, you can use `Assert` class from API. You can also use same
+name class from JUnit or any helper for throwing `AssertionError` from another libs.
 
 #### Examples
 
 ```java
-package ...;
+@Test(expected = ClassNotFoundException.class)
+void test$clientClassOnServer() throws ClassNotFoundException {
+    // Test will cause ClassNotFoundException on server and fail test.
+    // All unexpected exceptions will wrapped in AssertionError and cause test fail.
+    Class.forName("net.minecraft.client.Minecraft"); 
+   // Use deobf names without any problems.
+   // I hope you don't run this in obfuscated environment, do you?
+}
 
-import com.github.mjaroslav.mcingametester.api.*;
-import cpw.mods.fml.common.FMLCommonHandler;
+@Test
+void test$isServerSide() {
+    // Fails test if condition return false.
+    Assert.isTrue(FMLCommonHandler.instance().getSide().isServer(), "Non server side");
+}
 
-@Server // Server side tests.
-public class TestServerSide {
-    @Test(expected = ClassNotFoundException.class)
-    void test$clientClass() throws ClassNotFoundException {
-        // Will throw expected ClassNotFoundException
-        Class.forName("net.minecraft.client.Minecraft");
-    }
+@WorldShadow // Only for server side test containers.
+World overworld;
 
-    @Test
-    void test$serverClass() throws ClassNotFoundException {
-        // Will crash only on client side with unexpected ClassNotFoundException.
-        // Hm... may be @Test needed in 'unexpected' parameter.
-        Class.forName("net.minecraft.server.dedicated.DedicatedServer");
-    }
-
-    @Test
-    void test$fmlSide() {
-        // Fails if isServer() return false. It's possible only in client.
-        Assert.isTrue(FMLCommonHandler.instance().getSide().isServer(), "Non server side");
-    }
+@Test
+void test$shadowWorld() {
+    // You can combine several assertions.
+    Assert.isTrue(overworld != null, "Null world");
+    Assert.isEquals(overworld.provider.dimensionId, 0, "Not Overworld");
 }
 ```
-
-TODO
 
 ## Configuration
 

@@ -4,8 +4,9 @@ import com.github.mjaroslav.mcingametester.api.Assert;
 import com.github.mjaroslav.mcingametester.api.Client;
 import com.github.mjaroslav.mcingametester.api.Test;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.LoaderState;
 
-@Client
+@Client(when = LoaderState.INITIALIZATION)
 public class TestClientSide {
     @Test
     void test$clientClass() throws ClassNotFoundException {
