@@ -1,7 +1,7 @@
 package com.github.mjaroslav.mcingametester.mod.common;
 
-import com.github.mjaroslav.mcingametester.engine.TestTask;
 import com.github.mjaroslav.mcingametester.engine.TestContainer;
+import com.github.mjaroslav.mcingametester.engine.TestTask;
 import org.jetbrains.annotations.NotNull;
 
 import static com.github.mjaroslav.mcingametester.lib.ModInfo.LOG;

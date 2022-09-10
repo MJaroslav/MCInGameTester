@@ -1,7 +1,7 @@
 package com.github.mjaroslav.mcingametester.mod;
 
-import com.github.mjaroslav.mcingametester.mod.common.CommonProxy;
 import com.github.mjaroslav.mcingametester.engine.Engine;
+import com.github.mjaroslav.mcingametester.mod.common.CommonProxy;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.SidedProxy;

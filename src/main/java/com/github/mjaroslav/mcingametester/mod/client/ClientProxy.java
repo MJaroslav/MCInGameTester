@@ -1,8 +1,8 @@
 package com.github.mjaroslav.mcingametester.mod.client;
 
-import com.github.mjaroslav.mcingametester.mod.common.CommonProxy;
-import com.github.mjaroslav.mcingametester.engine.TestTask;
 import com.github.mjaroslav.mcingametester.engine.TestContainer;
+import com.github.mjaroslav.mcingametester.engine.TestTask;
+import com.github.mjaroslav.mcingametester.mod.common.CommonProxy;
 import cpw.mods.fml.common.ProgressManager;
 import cpw.mods.fml.common.ProgressManager.ProgressBar;
 import org.jetbrains.annotations.NotNull;

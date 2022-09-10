@@ -253,6 +253,17 @@ env:
   CI: false
 ```
 
-### Planned
+## Released and planned features
 
-TODO
+- [X] "Engine".
+- [X] Run tasks.
+- [X] CI integration.
+- [ ] Real Gradle Plugin.
+- [ ] JUtil implementation.
+- [ ] JUnit report implementation.
+- [ ] Port to next game versions without alternative frameworks.
+- [ ] Implement fake display or make mocked client graphics.
+
+## Post Scriptum
+
+Feel free to correct typos and errors in the text or code :)
