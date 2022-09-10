@@ -6,13 +6,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * Use this utility class for test writing helping.
+ */
 @UtilityClass
 public class Assert {
+    /**
+     * Fail test with (or not) message.
+     *
+     * @param message Optional fail message.
+     */
     public void fail(@Nullable String message) {
         if (message == null) throw new AssertionError();
         else throw new AssertionError(message);
     }
 
+    /**
+     * Print difference and fail test with message.
+     *
+     * @param expected expected comparing object.
+     * @param actual   actual comparing object.
+     * @param message  Optional message.
+     */
     public void fail(@Nullable Object expected, @Nullable Object actual, @Nullable String message) {
         ModInfo.LOG.error("Expected: " + expected);
         ModInfo.LOG.error("Actual: " + actual);
@@ -37,7 +52,7 @@ public class Assert {
 
 
     public void isEquals(@Nullable Object expected, @Nullable Object actual, @Nullable String message) {
-        if (Objects.equals(expected, actual)) fail(expected, actual, message);
+        if (!Objects.equals(expected, actual)) fail(expected, actual, message);
     }
 
     public void isEquals(@Nullable Object expected, @Nullable Object actual) {
@@ -101,7 +116,7 @@ public class Assert {
     }
 
     public void isNotEquals(@Nullable Object expected, @Nullable Object actual, @Nullable String message) {
-        if (!Objects.equals(expected, actual)) fail(expected, actual, message);
+        if (Objects.equals(expected, actual)) fail(expected, actual, message);
     }
 
     public void isNotEquals(@Nullable Object expected, @Nullable Object actual) {
