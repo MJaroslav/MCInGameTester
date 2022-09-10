@@ -78,7 +78,7 @@ dependencies {
 gradle.projectsEvaluated({
     if (Boolean.parseBoolean(System.getenv("CI"))) {
         // Add client only if OS has head or headless wrapper lib
-        if (Boolean.parseBoolean(System.getenv("HAS_HEADLESS_LIB"))) tasks.test.dependsOn('testClient')
+        if (Boolean.parseBoolean(System.getenv("MCIGT_HAS_DISPLAY"))) tasks.test.dependsOn('testClient')
         tasks.test.dependsOn('testServer')
     }
 })

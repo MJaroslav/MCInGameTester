@@ -22,4 +22,4 @@ jobs:
       with:
         run: ./gradlew test
       env:
-        HAS_HEADLESS_LIB: true
+        MCIGT_HAS_DISPLAY: true

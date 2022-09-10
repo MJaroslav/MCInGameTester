@@ -20,13 +20,24 @@ Just add next line after `apply plugin: 'forge'`:
 apply from: 'https://raw.githubusercontent.com/MJaroslav/MCInGameTester/master/gradle/configurations/v1.gradle'
 ```
 
+**Note:** This build script extension just adds some tasks and last project version to dependencies. If you want to use
+specific version of engine, add next to your build script:
+
+```groovy
+configurations.all {
+    resolutionStrategy {
+        force 'com.github.MJaroslav:MCInGameTester:VERSION:dev'
+    }
+}
+```
+
+Where `VERSION` is a your selected engine version.
+
 ### Tasks
 
 - `testClient` - runs client with test engine and test source set added in classpath.
 - `testServer` - runs server with test engine and test source set added in classpath.
 - `testJar` - builds temp jar from test source set. You no needs in this, its utility task.
-
-**Note**: You can configure `testClient`/`testServer` like as `runClient`/`runServer` tasks (it's JavaExec).
 
 **Note**: Any game test task will stop game after all test execution if configuration don't say else.
 
@@ -141,29 +152,55 @@ void test$shadowWorld() {
 
 ### Test execution
 
-For run tests you should execute `testClient` and/or `testServer` task.
-
-**Note:** Be careful, running client on headless systems cause crash with LWJGL errors. You should use fake display for
-this, for example XVFB.
-
-**Note:** If `CI` environment variable is `true`, then game test tasks will to `test` task, but client only
-if `HAS_HEADLESS_LIB` environment variable is `true`.
+For run tests manually you should execute `testClient` and/or `testServer` task.
 
 ## Configuration
 
-### Environment variables
+### Engine options
 
-TODO
+You can change next options of engine by system environments or JVM system properties (`-Dkey=value`):
 
-### System properties
+|     Environment Variable     |        JVM System Property         |                                                                      Description                                                                      |                   Default value                   |
+|:----------------------------:|:----------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
+|   MCIGT_STOP_AFTER_SUCCESS   |  MCInGameTester.stopAfterSuccess   |                                                       Stop game after success tests execution.                                                        |                       true                        |
+| MCIGT_FORCED_GAME_STOP_STATE | MCInGameTester.forcedGameStopState | Forces LoadState for game stopping. All tests in test containers where `when` parameter set with LoadState that should be after forced, will ignored. | Used max value from annotations `when` parameter. |
+|     MCIGT_STOP_NO_TESTS      |     MCInGameTester.stopNoTests     |                                                             Stop game if no tests loaded.                                                             |                       true                        |
+|    MCIGT_STOP_FIRST_FAIL     |    MCInGameTester.stopFirstFail    |                                                            Stop game on first failed test.                                                            |                       false                       |
+|       MCIGT_HALT_EXIT        |      MCInGameTester.haltExit       |                                               Use System.halt instead of System.exit for game stopping.                                               |                       false                       |
 
-TODO
+**Note:** Value from environment variable will force JVM system property value.
+
+### Build script
+
+You can configure `testClient`/`testServer` like as `runClient`/`runServer` tasks (it's JavaExec-typed tasks), but these
+tasks contains some additional parameters:
+
+```groovy
+testServer { // or testClient
+    // Recreate working dir before game launch.
+    clearWorkingDirBeforeLaunch = true
+    // Auto accepting eula for server.
+    eula = true // (false for testClient)
+    // Use custom Log4J configuration (mcingametester.xml) for showning only ModInfo#LOG logger.
+    logOnlyTests = true
+    // Copies mapping to `../conf` of working directory. It's can be useful
+    // if you use CodeChickenLib in project: version from GregTech repository 
+    // can find mappings automatically, witout showing Java Swing File Chooser.
+    copyMappingsLocally = true
+    
+    // In additional, testServer have default "nogui" program argument.
+}
+```
+
+Script extension also can set  `testClient` and `testServer` as `test` task dependencies if `CI` environment variable
+is `true`, but for client also required environment variable `MCIGT_HAS_DISPLAY` with same value. It's required because
+OS can be headless and client game will crash. In this case use any display faker for it, for example XVFB.
 
 ## CI environments
 
 ### GitHub actions
 
-You can run tests without client or use XVFB wrapper action, for example configuration from this project:
+This action will run all tests (`test` with `testClient` and `testServer` as dependencies) on any push or pull request.
 
 ```yaml
 name: Run gradle tests
@@ -190,10 +227,8 @@ jobs:
       with:
         run: ./gradlew test
       env:
-        HAS_HEADLESS_LIB: true
+        MCIGT_HAS_DISPLAY: true
 ```
-
-**Note:** `HAS_HEADLESS_LIB` environment variable required for client run and only if system has display or can fake it.
 
 ### JitCI
 
@@ -201,13 +236,13 @@ Thanks jitpack.io command for adding XVFB to their docker containers by my reque
 
 I use next non-standard settings for this project:
 
-- Environment variable `HAS_HEADLESS_LIB` that equals `true`
+- Environment variable `MCIGT_HAS_DISPLAY` that equals `true`
 - Replace test command
   by `xvfb-run -e /dev/stdout -s "-screen 0 1280x1024x24 -ac -nolisten tcp -nolisten unix" -a ./gradlew test`
 
 **Note:** Disable dependency cache in init command if you have `cache('http')` or something problem.
 
-**Note:** It `jitpack.yml` I use next configuration with disabled CI (but you can use XVFB too):
+**Note:** In `jitpack.yml` I use next configuration for building without CI (but you can try use XVFB too):
 
 ```yaml
 jdk:
