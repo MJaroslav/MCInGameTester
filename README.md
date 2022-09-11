@@ -31,7 +31,7 @@ configurations.all {
 }
 ```
 
-Where `VERSION` is a your selected engine version.
+Where `VERSION` is a selected engine version.
 
 ### Tasks
 
@@ -54,7 +54,7 @@ If you need to log something, use `com.github.mjaroslav.mcingametester.lib.ModIn
 For begin, just create test containers in your test source set and then annotate them with `@Client` (for only client
 side), `@Server` (for only server side) or `@Common` (for both side).
 
-**Note:** For these three annotations, you can use  `when` parameter with `LoadState` type for setting loading state
+**Note:** For these three annotations, you can use  `when` parameter with `LoaderState` type for setting loading state
 when tests should be run.
 
 Now, you can write tests in these classes. Just write test-like methods and annotate them with `@Test`.
@@ -90,7 +90,7 @@ public class TestCommomSide {
 }
 
 // Tests from this test container will executed only on server side.
-@Server(when = LoadState.INITIALIZATION) // Tests will executed in end (after other mods) of initialization state.
+@Server(when = LoaderState.INITIALIZATION) // Tests will executed in end (after other mods) of initialization state.
 public class TestServerSide {
     @WorldShadow
     World overworld; // Getter for server Overworld (dim 0). 
@@ -160,13 +160,13 @@ For run tests manually you should execute `testClient` and/or `testServer` task.
 
 You can change next options of engine by system environments or JVM system properties (`-Dkey=value`):
 
-|                                 Parameter                                  |                                                                      Description                                                                      |                   Default value                   |
-|:--------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
-|    MCIGT_STOP_AFTER_SUCCESS<br/>or<br/>MCInGameTester.stopAfterSuccess     |                                                       Stop game after success tests execution.                                                        |                       true                        |
-| MCIGT_FORCED_GAME_STOP_STATE<br/>or<br/>MCInGameTester.forcedGameStopState | Forces LoadState for game stopping. All tests in test containers where `when` parameter set with LoadState that should be after forced, will ignored. | Used max value from annotations `when` parameter. |
-|         MCIGT_STOP_NO_TESTS<br/>or<br/>MCInGameTester.stopNoTests          |                                                             Stop game if no tests loaded.                                                             |                       true                        |
-|       MCIGT_STOP_FIRST_FAIL<br/>or<br/>MCInGameTester.stopFirstFail        |                                                            Stop game on first failed test.                                                            |                       false                       |
-|             MCIGT_HALT_EXIT<br/>or<br/>MCInGameTester.haltExit             |                                               Use System.halt instead of System.exit for game stopping.                                               |                       false                       |
+|                                 Parameter                                  |                                                                        Description                                                                        |                   Default value                   |
+|:--------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------:|
+|    MCIGT_STOP_AFTER_SUCCESS<br/>or<br/>MCInGameTester.stopAfterSuccess     |                                                         Stop game after success tests execution.                                                          |                       true                        |
+| MCIGT_FORCED_GAME_STOP_STATE<br/>or<br/>MCInGameTester.forcedGameStopState | Forces LoaderState for game stopping. All tests in test containers where `when` parameter set with LoaderState that should be after forced, will ignored. | Used max value from annotations `when` parameter. |
+|         MCIGT_STOP_NO_TESTS<br/>or<br/>MCInGameTester.stopNoTests          |                                                               Stop game if no tests loaded.                                                               |                       true                        |
+|       MCIGT_STOP_FIRST_FAIL<br/>or<br/>MCInGameTester.stopFirstFail        |                                                              Stop game on first failed test.                                                              |                       false                       |
+|             MCIGT_HALT_EXIT<br/>or<br/>MCInGameTester.haltExit             |                                                 Use System.halt instead of System.exit for game stopping.                                                 |                       false                       |
 
 **Note:** Value from environment variable will force JVM system property value.
 
