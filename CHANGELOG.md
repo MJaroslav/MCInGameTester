@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `Assert.isEquals` now logs normally.
+
 ## [1.2.0] - 2022-09-10
 
 ### Added

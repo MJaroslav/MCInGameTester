@@ -1,6 +1,6 @@
 package com.github.mjaroslav.mcingametester.api;
 
-import com.github.mjaroslav.mcingametester.lib.ModInfo;
+import com.github.mjaroslav.mcingametester.util.ComparisonError;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,9 +29,8 @@ public class Assert {
      * @param message  Optional message.
      */
     public void fail(@Nullable Object expected, @Nullable Object actual, @Nullable String message) {
-        ModInfo.LOG.error("Expected: " + expected);
-        ModInfo.LOG.error("Actual: " + actual);
-        fail(message);
+        if (message == null) throw new ComparisonError(expected, actual);
+        else throw new ComparisonError(message, expected, actual);
     }
 
     public void isTrue(boolean condition, @Nullable String message) {
