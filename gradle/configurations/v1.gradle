@@ -24,10 +24,10 @@ abstract class TestGameTask extends JavaExec {
     @Override
     void exec() {
         def file = getWorkingDir()
-        if (getClearWorkingDirBeforeLaunch()) { file.deleteDir(); file.mkdirs() }
-        if (getEula()) new File(file, "eula.txt").setText("eula=true")
-        if (getLogOnlyTests()) systemProperty 'log4j.configurationFile', 'mcingametester.xml'
-        if (getCopyMappingsLocally()) project.copy {
+        if (getClearWorkingDirBeforeLaunch().get()) { file.deleteDir(); file.mkdirs() }
+        if (getEula().get()) new File(file, "eula.txt").setText("eula=true")
+        if (getLogOnlyTests().get()) systemProperty 'log4j.configurationFile', 'mcingametester.xml'
+        if (getCopyMappingsLocally().get()) project.copy {
             from project.plugins.getPlugin('forge').delayedFile('{MCP_DATA_DIR}')
             include '**/*.srg'
             include "**/*.csv"
