@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2022-09-17
+
 ### Fixed
 
 - `Assert.isEquals` now logs normally.
 - Fixed ignoring options in testClient/testServer.
+- Fixed #1.
 
 ## [1.2.0] - 2022-09-10
 
@@ -72,7 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test running.
 - Tasks for running game with test source set.
 
-[unreleased]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/MJaroslav/MCInGameTester/compare/1.1.0...v1.2.0
 [1.1.0]: https://github.com/MJaroslav/MCInGameTester/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/MJaroslav/MCInGameTester/compare/1.0.2...1.0.3

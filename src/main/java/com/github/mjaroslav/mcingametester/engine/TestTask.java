@@ -24,7 +24,7 @@ public final class TestTask {
     }
 
     public void setResult(@NotNull TestState state, @Nullable Throwable result) {
-        if (state == TestState.AWAITING) throw new IllegalArgumentException("You trying to mark test AWAITING");
+        if (state == TestState.AWAITING) throw new IllegalArgumentException("You trying to mark test as AWAITING");
         if (this.state != TestState.AWAITING) throw new IllegalStateException("You trying to start test " + this
                 + " twice");
         this.state = state;

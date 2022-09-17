@@ -61,6 +61,6 @@ public final class Runner {
 
     public @NotNull TestState getState() {
         return containers.stream().map(TestContainer::getState).max(Comparator.comparingInt(Enum::ordinal))
-                .orElse(TestState.AWAITING);
+                .orElse(TestState.SUCCESS);
     }
 }
