@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump Gradle 7.5.1 to 8.5
+- Bump Lombok 1.18.24 to 1.18.30
+- Bump Jankson 1.2.1 to 1.2.3
+- Bump Jabel 0.4.1 to 1.0.0
+
 ## [1.2.1] - 2022-09-17
 
 ### Fixed

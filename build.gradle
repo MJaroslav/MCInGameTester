@@ -3,10 +3,10 @@ buildscript {
         mavenCentral()
         maven {
             name 'forge'
-            url 'https://maven.minecraftforge.net/'
+            url 'https://maven.minecraftforge.net'
         }
     }
-    dependencies { classpath('com.anatawa12.forge:ForgeGradle:1.2-1.0.+') { changing = true } }
+    dependencies { classpath('com.anatawa12.forge:ForgeGradle:1.2-1.1.+') { changing = true } }
 }
 
 apply plugin: 'java'
@@ -36,7 +36,7 @@ group = buildprop.group
 archivesBaseName = project.name
 
 task devJar(type: Jar) {
-    classifier('dev')
+    archiveClassifier = 'dev'
     manifest { from project.tasks.jar.manifest }
     from sourceSets.main.output
 }
@@ -53,7 +53,7 @@ configure([tasks.compileJava, tasks.compileTestJava, tasks.compileApiJava]) {
     sourceCompatibility = 16 // for the IDE support
     options.release = 8
 
-    javaCompiler = javaToolchains.compilerFor {languageVersion = JavaLanguageVersion.of(16) }
+    javaCompiler = javaToolchains.compilerFor { languageVersion = JavaLanguageVersion.of(16) }
 }
 
 minecraft {

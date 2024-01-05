@@ -44,7 +44,7 @@ abstract class TestGameTask extends JavaExec {
 task testJar(type: Jar, description: 'Make temp jar from test source set',
         group: 'MCInGameTester') {
     from sourceSets.test.output
-    destinationDir getTemporaryDir()
+    destinationDirectory = getTemporaryDir()
 }
 
 tasks.register('testClient', TestGameTask) {
@@ -53,8 +53,8 @@ tasks.register('testClient', TestGameTask) {
     logOnlyTests = true
     copyMappingsLocally = true
     description 'Runs the Minecraft Client, runs game tests then stop it'
-    setMain(tasks.runClient.main)
-    setWorkingDir(getTemporaryDir())
+    mainClass = tasks.runClient.mainClass
+    workingDir = getTemporaryDir()
 }
 
 tasks.register('testServer', TestGameTask) {
@@ -64,14 +64,14 @@ tasks.register('testServer', TestGameTask) {
     copyMappingsLocally = true
     description 'Runs the Minecraft Server, runs game tests then stop it'
     args args + "nogui"
-    setMain(tasks.runServer.main)
-    setWorkingDir(getTemporaryDir())
+    mainClass = tasks.runServer.mainClass
+    workingDir = getTemporaryDir()
 }
 
 repositories { maven { url 'https://jitpack.io' } }
 
 dependencies {
-    testImplementation 'com.github.MJaroslav:MCInGameTester:v1.2.1:dev' // dev for deobf version
+    testImplementation 'com.github.MJaroslav:MCInGameTester:v1.3.0:dev' // dev for deobf version
 }
 
 // Add game tests to test in CI environment
