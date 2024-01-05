@@ -22,6 +22,6 @@ jobs:
     - name: Run all tests headless
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: ./gradlew test
+        run: ./gradlew test --info --stacktrace
       env:
         MCIGT_HAS_DISPLAY: true
