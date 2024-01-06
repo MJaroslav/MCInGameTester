@@ -90,12 +90,13 @@ processResources {
     }
 }
 
+project.afterEvaluate { p -> tasks.findByName('publishMavenJavaPublicationToMavenLocal').mustRunAfter('build') } // Bruh
 publishing {
     publications {
 		mavenJava(MavenPublication) {
             artifact jar
-			artifact devJar
-			artifact sourcesJar
+            artifact devJar
+            artifact sourcesJar
         }
     }
 }
