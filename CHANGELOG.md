@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-01-06
+
 ### Changed
 
+- Support for Gradle 8
 - Bump Gradle 7.5.1 to 8.5
 - Bump Lombok 1.18.24 to 1.18.30
 - Bump Jankson 1.2.1 to 1.2.3
@@ -82,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test running.
 - Tasks for running game with test source set.
 
-[unreleased]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.1...HEAD
+[unreleased]: https://github.com/MJaroslav/MCInGameTester/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/MJaroslav/MCInGameTester/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/MJaroslav/MCInGameTester/compare/1.1.0...v1.2.0
 [1.1.0]: https://github.com/MJaroslav/MCInGameTester/compare/1.0.3...1.1.0
